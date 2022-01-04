@@ -24,8 +24,8 @@ def upload_file():
         return{"message": "Arquivo excede o tamanho permitido(1mb)!"}, 413
     except(FileNotFoundError):
         return{"message": "Extensão não permitida nesse banco!"}, 415
-    else:
-        return jsonify(file_received), 201
+    
+    return jsonify(file_received), 201
 
 @app.get("/files/")
 def list_files():
