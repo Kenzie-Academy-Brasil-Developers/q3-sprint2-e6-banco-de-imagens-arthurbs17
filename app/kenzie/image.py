@@ -1,4 +1,4 @@
-import os
+import os, tempfile, shutil
 import dotenv
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import Conflict
@@ -36,3 +36,45 @@ def receive_file(files):
         file_received[f"file_{key}"] = filename
     
     return file_received
+
+def list_files_presents():
+    list_files = []
+    for extension in allowed_extensions:
+        if len(os.listdir(f"./files/{extension}")) != 0:
+            list_files.append(' '.join(os.listdir(f"./files/{extension}")))
+    if len(list_files) == 0:
+        raise FileNotFoundError
+    else:
+        return ' '.join(list_files).split()
+
+def list_files_per_extension(extension):
+    list_files = []
+    extension = extension.lower()
+    if extension == "jpeg":
+        extension = "jpg"
+    try:
+        list_files = os.listdir(f"./files/{extension}")
+        if len(list_files) == 0:
+            return {"message": f"Nenhum arquivo {extension} existe no servidor!"}
+    except TypeError:
+        raise FileNotFoundError
+    
+    return list_files
+
+def path_file(file_name):
+    file_name = file_name.lower()
+    return f"../files/{file_name.split('.')[-1]}"
+
+def create_zip_directory(query_params, zip_name):
+    extension = query_params['file_extension'].lower()
+    if extension == "jpeg":
+        extension = "jpg"
+    path = f"{files_directory}/{extension}"
+
+    if len(os.listdir(f"./files/{extension}")) == 0:
+        raise FileNotFoundError
+
+    shutil.make_archive(zip_name, 'zip', path)
+    shutil.move(f"./{zip_name}.zip", "/tmp")
+    
+    return {}
